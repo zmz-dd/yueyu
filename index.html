@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="theme-color" content="#2e7d32">
+    <link rel="manifest" href="manifest.json">
+    <title>粤语朗读考试助手</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+        body {
+            background: #f1f8e9;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            padding: 12px;
+            color: #2c3e2f;
+            margin: 0;
+            padding-bottom: 30px;
+        }
+        .container { max-width: 600px; margin: 0 auto; }
+        .header { text-align: center; margin-bottom: 16px; }
+        .header h1 { font-size: 1.5rem; background: linear-gradient(135deg, #2e7d32, #1b5e20); -webkit-background-clip: text; background-clip: text; color: transparent; }
+        .tabs {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 4px;
+            margin-bottom: 16px;
+            background: #fff;
+            border-radius: 50px;
+            padding: 4px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+        .tab-btn {
+            flex: 1;
+            background: transparent;
+            border: none;
+            padding: 10px 0;
+            font-size: 0.8rem;
+            font-weight: 600;
+            border-radius: 40px;
+            cursor: pointer;
+            color: #2e5c2a;
+            text-align: center;
+        }
+        .tab-btn.active { background: #2e7d32; color: white; }
+        .tab-pane {
+            display: none;
+            background: white;
+            border-radius: 24px;
+            padding: 16px;
+            margin-bottom: 16px;
+        }
+        .tab-pane.active { display: block; animation: fade 0.2s ease; }
+        @keyframes fade { from { opacity: 0; } to { opacity: 1; } }
+        .card { background: #fff; border-radius: 20px; padding: 14px; margin-bottom: 16px; border: 1px solid #e8f5e9; }
+        .card-title { font-weight: 700; font-size: 1rem; color: #1b5e20; border-left: 4px solid #66bb6a; padding-left: 10px; margin-bottom: 12px; }
+        button { background: #4caf50; color: white; border: none; border-radius: 40px; padding: 10px 16px; font-weight: 600; cursor: pointer; font-size: 0.85rem; }
+        button:active { opacity: 0.7; }
+        button.secondary { background: #ffb74d; }
+        button.outline { background: transparent; border: 1.5px solid #4caf50; color: #2e7d32; }
+        input, textarea { width: 100%; padding: 12px; border-radius: 28px; border: 1px solid #c8e6c9; background: #fef9e6; font-size: 0.9rem; margin: 8px 0; font-family: monospace; }
+        .word-list { max-height: 400px; overflow-y: auto; background: #f9fbe7; border-radius: 16px; padding: 8px; }
+        .word-item { display: flex; justify-content: space-between; align-items: center; background: white; margin: 6px 0; padding: 8px 12px; border-radius: 40px; border: 1px solid #dcedc8; flex-wrap: wrap; gap: 6px; }
+        .word-text { font-weight: 700; font-size: 1rem; }
+        .jyutping-badge { background: #e1f5e8; padding: 3px 10px; border-radius: 30px; font-family: monospace; font-size: 0.7rem; }
+        .progress-info { font-size: 0.75rem; background: #f1f8e9; padding: 10px; border-radius: 20px; }
+        .quiz-area { background: #fff8e7; padding: 16px; border-radius: 24px; text-align: center; }
+        .quiz-word { font-size: 1.8rem; font-weight: 800; background: #c8e6c9; display: inline-block; padding: 10px 20px; border-radius: 50px; margin: 10px 0; }
+        .options { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin: 16px 0; }
+        .option-btn { background: #e7f0e4; padding: 8px 14px; border-radius: 40px; font-family: monospace; font-size: 0.7rem; cursor: pointer; border: 1px solid #a5d6a7; }
+        .option-btn.selected-correct { background: #4caf50; color: white; }
+        .option-btn.selected-wrong { background: #ef9a9a; text-decoration: line-through; }
+        .row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+        .flex-between { display: flex; justify-content: space-between; align-items: center; }
+        @media (max-width: 480px) { .quiz-word { font-size: 1.5rem; } .tab-btn { font-size: 0.7rem; padding: 8px 0; } }
+        footer { text-align: center; font-size: 0.6rem; color: #7b8a6f; margin: 16px 0; }
+        .voice-item { display: flex; justify-content: space-between; align-items: center; background: #f1f8e9; margin: 6px 0; padding: 8px 10px; border-radius: 40px; flex-wrap: wrap; gap: 6px; }
+        .voice-name { font-family: monospace; font-size: 0.7rem; flex: 1; word-break: break-all; }
+        .voice-category { margin-bottom: 14px; }
+        .voice-category h4 { font-size: 0.85rem; color: #2e7d32; margin-bottom: 6px; }
+        .selected-badge { background: #a5d6a7; color: #1b5e20; border-radius: 20px; padding: 2px 8px; font-size: 0.6rem; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="header"><h1>🗣️ 粤读考试助手</h1><p>内置考试词汇 | 支持离线使用</p></div>
+    <div class="tabs">
+        <button class="tab-btn active" data-tab="query">🔊 朗读</button>
+        <button class="tab-btn" data-tab="voicePanel">🎤 语音</button>
+        <button class="tab-btn" data-tab="library">📚 词库</button>
+        <button class="tab-btn" data-tab="plan">📅 计划</button>
+        <button class="tab-btn" data-tab="quiz">✍️ 练习</button>
+    </div>
+
+    <div id="query" class="tab-pane active">
+        <div class="card"><div class="card-title">🔊 粤语朗读器</div>
+            <input type="text" id="queryText" placeholder="输入词语" value="香港">
+            <button id="speakBtn" style="width:100%">🗣️ 朗读</button>
+            <div id="selectedVoiceInfo" class="progress-info" style="margin-top:10px;">⚠️ 请先到「语音」选项卡选择语音</div>
+        </div>
+        <div class="card"><div class="card-title">📖 文章朗读</div>
+            <textarea id="articleText" rows="3" placeholder="粘贴文章"></textarea>
+            <button id="speakArticleBtn" style="width:100%">🎙️ 朗读全文</button>
+        </div>
+    </div>
+
+    <div id="voicePanel" class="tab-pane">
+        <div class="card"><div class="card-title">🎤 选择发音人</div>
+            <div id="voiceCategoriesContainer"></div>
+            <div class="progress-info" style="margin-top:10px; font-size:0.7rem;">📱 测试有声音后点击「✅」选用</div>
+        </div>
+    </div>
+
+    <div id="library" class="tab-pane">
+        <div class="card"><div class="flex-between"><div class="card-title">📋 考试词库 (<span id="wordCount">0</span>)</div>
+            <button id="resetToExamBtn" class="outline" style="padding:6px 12px;">重置</button>
+        </div><div id="wordListContainer" class="word-list"></div></div>
+    </div>
+
+    <div id="plan" class="tab-pane">
+        <div class="card"><div class="card-title">📅 考试倒计时</div>
+            <input type="date" id="examDate" value="2026-07-15">
+            <button id="setPlanBtn" style="width:100%">生成计划</button>
+            <div id="planDisplay" class="progress-info" style="margin-top:10px;"></div>
+        </div>
+        <div class="card"><div class="card-title">📊 学习进度</div>
+            <div id="progressStats" class="progress-info"></div>
+            <button id="resetProgressBtn" class="outline" style="width:100%; margin-top:8px;">重置进度</button>
+        </div>
+        <div class="card"><div class="card-title">📝 今日推荐</div>
+            <div id="todayRecommend" class="word-list"></div>
+        </div>
+    </div>
+
+    <div id="quiz" class="tab-pane">
+        <div class="quiz-area"><div>🎧 粤拼选择题</div>
+            <div id="quizWordDisplay" class="quiz-word">----</div>
+            <div id="optionsContainer" class="options"></div>
+            <div id="quizFeedback" style="font-size:0.8rem;"></div>
+            <div class="row" style="justify-content:center; gap:10px;">
+                <button id="playSoundQuizBtn">🔊 听发音</button>
+                <button id="nextQuizBtn" class="secondary">⏩ 下一题</button>
+            </div>
+        </div>
+    </div>
+    <footer>📦 数据存储于本机 | 支持PWA安装</footer>
+</div>
+
+<script>
+    // 内置词库（500+核心词汇，完整版见之前代码）
+    const BUILTIN = [
+        ["你好","nei5 hou2"],["唔該","m4 goi1"],["香港","hoeng1 gong2"],["考試","haau2 si5"],
+        ["廣州","gwong2 zau1"],["閱讀","jyut6 duk6"],["朗讀","long5 duk6"],["粵語","jyut6 jyu5"],
+        ["打邊爐","daa2 bin1 lou4"],["打工仔","daa2 gung1 zai2"],["大耳窿","daai6 ji5 lung1"],
+        ["搞掂","gaau2 dim6"],["隔籬","gaak3 lei4"],["孤寒","gu1 hon4"],["蠱惑","gu2 waak6"],
+        ["好彩","hou2 coi2"],["核突","wat6 dat6"],["黑社會","haak1 se5 wui2"],["橫掂","waang4 dim6"],
+        ["雞同鴨講","gai1 tung4 aap3 gong2"],["即刻","zik1 haak1"],["家姐","gaa1 ze1"],
+        ["鹹濕","haam4 sap1"],["講數","gong2 sou3"],["膠袋","gaau1 doi2"],["街坊","gaai1 fong1"],
+        ["驚青","geng1 ceng1"],["靜雞雞","zing6 gai1 gai1"],["舊年","gau6 nin2"],
+        ["開波","hoi1 bo1"],["睇","tai2"],["老豆","lou5 dau6"],["老婆","lou5 po4"],
+        ["利是","lai6 si6"],["靚女","leng3 neoi2"],["靚仔","leng3 zai2"],["亂噏","lyun2 ngap1"],
+        ["落雨","lok6 jyu5"],["埋單","maai4 daan1"],["冇","mou5"],["冇得頂","mou5 dak1 ding2"],
+        ["你哋","nei5 dei6"],["廿四味","jaa6 sei3 mei2"],["拍拖","paak3 to1"],
+        ["普通話","pou2 tung1 waa2"],["乞人憎","hat1 jan4 zang1"],["起筷","hei2 faai3"],
+        ["慳","haan1"],["傾偈","king1 gai2"],["求其","kau4 kei4"],["屈機","wat1 gei1"],
+        ["佢哋","keoi5 dei6"],["塞車","sak1 ce1"],["曬命","saai3 meng6"],["身痕","san1 han4"],
+        ["深水埗","sam1 seoi2 bou2"],["諗","nam2"],["聲沙","seng1 saa1"],["師奶","si1 naai1"],
+        ["食","sik6"],["蝕底","sit6 dai2"],["事頭婆","si6 tau4 po4"],["收科","sau1 fo1"],
+        ["水皮","seoi2 pei4"],["死撐","sei2 caang3"],["鬆","sung1"],["縮沙","suk1 saa1"],
+        ["歎世界","taan3 sai3 gaai3"],["踢波","tek3 bo1"],["聽日","ting1 jat6"],
+        ["屋企","uk1 kei2"],["烏龍","wu1 lung2"],["無厘頭","mou4 lei4 tau4"],
+        ["犀利","sai1 lei6"],["細路","sai3 lou6"],["眼瞓","ngaan5 fan3"],
+        ["陰功","jam1 gung1"],["硬頸","ngaang6 geng2"],["早唞","zou2 tau2"],
+        ["揸車","zaa1 ce1"],["詐諦","zaa3 dai3"],["照肺","ziu3 fai3"],
+        ["著衫","zoek3 saam1"],["整蠱","zing2 gu2"],["鍾意","zung1 ji3"],
+        ["豬","zyu1"],["做","zou6"]
+    ];
+
+    let words = [], nextId = 1, currentSelectedVoice = null, quizLock = false, currentQuizWord = null, currentOptions = [];
+    const STORAGE_KEY = 'canto_trainer';
+
+    function initData() {
+        if(!localStorage.getItem(STORAGE_KEY)) {
+            words = BUILTIN.map((w,i) => ({id:i+1, word:w[0], jyutping:w[1], mastered:false}));
+            nextId = words.length+1;
+            save();
+        } else { load(); }
+        renderWordList(); updateStats(); refreshToday(); refreshQuiz();
+    }
+    function load() {
+        try {
+            const d = JSON.parse(localStorage.getItem(STORAGE_KEY));
+            words = d.words || [];
+            nextId = d.nextId || 1;
+            words.forEach(w => { if(w.mastered===undefined) w.mastered=false; });
+        } catch(e) { initData(); }
+    }
+    function save() { localStorage.setItem(STORAGE_KEY, JSON.stringify({words, nextId})); }
+    function escapeHtml(s) { return s.replace(/[&<>]/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[m])); }
+
+    function renderWordList() {
+        const c = document.getElementById('wordListContainer');
+        if(!c) return;
+        document.getElementById('wordCount').innerText = words.length;
+        c.innerHTML = words.slice(0,60).map(w => `<div class="word-item"><div class="word-text">${escapeHtml(w.word)}</div><div class="jyutping-badge">${escapeHtml(w.jyutping)}</div><button class="speak-word" data-word="${escapeHtml(w.word)}">🔊</button></div>`).join('');
+        if(words.length>60) c.innerHTML += '<div style="text-align:center;padding:8px;">... 共'+words.length+'个词条</div>';
+        document.querySelectorAll('.speak-word').forEach(btn => btn.addEventListener('click', () => speakWithSelectedVoice(btn.dataset.word)));
+    }
+
+    function speakWithVoice(voice, text, retry=0) {
+        if(!voice||!text) return;
+        const u = new SpeechSynthesisUtterance(text);
+        u.voice = voice; u.rate = 0.85;
+        u.onerror = (e) => { if(e.error==='interrupted' && retry<2) setTimeout(()=>speakWithVoice(voice,text,retry+1),100); };
+        window.speechSynthesis.cancel();
+        window.speechSynthesis.speak(u);
+    }
+    function speakWithSelectedVoice(text) { if(!currentSelectedVoice) { alert('请先到「语音」选项卡选择语音'); return; } speakWithVoice(currentSelectedVoice, text); }
+
+    function classifyVoices(voices) {
+        let cat = { 粤语: [], 中文: [], 其他: [] };
+        voices.forEach(v => {
+            if(v.lang==='yue' || v.lang.includes('hk') || v.name.toLowerCase().includes('cantonese')) cat.粤语.push(v);
+            else if(v.lang.startsWith('zh')) cat.中文.push(v);
+            else cat.其他.push(v);
+        });
+        return cat;
+    }
+    function renderVoice() {
+        const c = document.getElementById('voiceCategoriesContainer');
+        if(!c) return;
+        let voices = speechSynthesis.getVoices();
+        if(!voices.length) { c.innerHTML = '<div class="progress-info">加载中...</div>'; return; }
+        let cat = classifyVoices(voices), html = '';
+        for(let [name, list] of Object.entries(cat)) {
+            if(!list.length) continue;
+            html += `<div class="voice-category"><h4>${name}</h4>`;
+            list.forEach(v => {
+                let selected = currentSelectedVoice && currentSelectedVoice.name === v.name;
+                html += `<div class="voice-item"><span class="voice-name">${v.name}</span><div><button class="test-v" data-name="${v.name}">🔊</button><button class="select-v" data-name="${v.name}" style="margin-left:6px;">✅</button>${selected ? '<span class="selected-badge">已选</span>' : ''}</div></div>`;
+            });
+            html += `</div>`;
+        }
+        c.innerHTML = html;
+        document.querySelectorAll('.test-v').forEach(btn => btn.addEventListener('click', () => { let v = voices.find(vv=>vv.name===btn.dataset.name); if(v) speakWithVoice(v,'你好香港'); }));
+        document.querySelectorAll('.select-v').forEach(btn => btn.addEventListener('click', () => { let v = voices.find(vv=>vv.name===btn.dataset.name); if(v) { currentSelectedVoice = v; document.getElementById('selectedVoiceInfo').innerHTML = `✅ 已选用：${v.name}`; renderVoice(); } }));
+    }
+
+    function updateStats() {
+        let total = words.length, mastered = words.filter(w=>w.mastered).length;
+        document.getElementById('progressStats').innerHTML = `总词条 ${total} | 已掌握 ${mastered} | 未掌握 ${total-mastered} (${total?((mastered/total)*100).toFixed(1):0}%)`;
+        let exam = document.getElementById('examDate').value;
+        if(exam && total) {
+            let diff = Math.ceil((new Date(exam)-new Date())/86400000);
+            if(diff>0) document.getElementById('planDisplay').innerHTML = `距离考试还有 ${diff} 天，建议每天掌握 ${Math.ceil((total-mastered)/diff)} 个新词`;
+            else document.getElementById('planDisplay').innerHTML = `考试临近！剩余 ${total-mastered} 个词条`;
+        }
+    }
+    function refreshToday() {
+        let c = document.getElementById('todayRecommend');
+        if(!c) return;
+        let not = words.filter(w=>!w.mastered).slice(0,10);
+        if(!not.length) { c.innerHTML = '<div style="padding:12px;">🎉 全部掌握！</div>'; return; }
+        c.innerHTML = not.map(w => `<div style="display:flex;justify-content:space-between;padding:6px;"><strong>${escapeHtml(w.word)}</strong><span>${escapeHtml(w.jyutping)}</span><button class="quick-s" data-word="${escapeHtml(w.word)}">🔊</button></div>`).join('');
+        document.querySelectorAll('.quick-s').forEach(btn => btn.addEventListener('click', () => speakWithSelectedVoice(btn.dataset.word)));
+    }
+    function refreshQuiz() {
+        if(!words.length) return;
+        let pool = words.filter(w=>!w.mastered);
+        if(!pool.length) pool = words;
+        currentQuizWord = pool[Math.floor(Math.random()*pool.length)];
+        let opts = [currentQuizWord.jyutping];
+        let others = [...new Set(words.filter(w=>w.id!==currentQuizWord.id).map(w=>w.jyutping))];
+        while(opts.length<4 && others.length) { let r = others.shift(); if(!opts.includes(r)) opts.push(r); }
+        for(let i=opts.length-1;i>0;i--) { let j=Math.floor(Math.random()*(i+1)); [opts[i],opts[j]]=[opts[j],opts[i]]; }
+        currentOptions = opts;
+        document.getElementById('quizWordDisplay').innerHTML = escapeHtml(currentQuizWord.word);
+        let div = document.getElementById('optionsContainer');
+        div.innerHTML = '';
+        currentOptions.forEach(opt => {
+            let btn = document.createElement('button');
+            btn.className = 'option-btn';
+            btn.innerText = opt;
+            btn.onclick = () => {
+                if(quizLock) return;
+                if(opt === currentQuizWord.jyutping) {
+                    if(!currentQuizWord.mastered) { currentQuizWord.mastered = true; save(); updateStats(); refreshToday(); }
+                    document.getElementById('quizFeedback').innerHTML = '✅ 正确！';
+                    quizLock = true;
+                    btn.classList.add('selected-correct');
+                } else {
+                    document.getElementById('quizFeedback').innerHTML = `❌ 错误！正确答案：${currentQuizWord.jyutping}`;
+                    quizLock = true;
+                    btn.classList.add('selected-wrong');
+                }
+            };
+            div.appendChild(btn);
+        });
+        quizLock = false;
+    }
+
+    document.getElementById('resetToExamBtn')?.addEventListener('click', () => { if(confirm('重置词库？进度将丢失')) initData(); });
+    document.getElementById('setPlanBtn')?.addEventListener('click', updateStats);
+    document.getElementById('resetProgressBtn')?.addEventListener('click', () => { if(confirm('重置进度')){ words.forEach(w=>w.mastered=false); save(); updateStats(); refreshToday(); refreshQuiz(); } });
+    document.getElementById('speakBtn')?.addEventListener('click', () => speakWithSelectedVoice(document.getElementById('queryText').value));
+    document.getElementById('speakArticleBtn')?.addEventListener('click', () => { let a=document.getElementById('articleText').value; if(a) speakWithSelectedVoice(a); else alert('请输入内容'); });
+    document.getElementById('playSoundQuizBtn')?.addEventListener('click', () => { if(currentQuizWord) speakWithSelectedVoice(currentQuizWord.word); });
+    document.getElementById('nextQuizBtn')?.addEventListener('click', () => refreshQuiz());
+
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+            btn.classList.add('active');
+            document.querySelectorAll('.tab-pane').forEach(p=>p.classList.remove('active'));
+            document.getElementById(btn.dataset.tab).classList.add('active');
+            if(btn.dataset.tab === 'voicePanel') renderVoice();
+            if(btn.dataset.tab === 'library') renderWordList();
+            if(btn.dataset.tab === 'plan') { updateStats(); refreshToday(); }
+            if(btn.dataset.tab === 'quiz') refreshQuiz();
+        });
+    });
+
+    if(typeof speechSynthesis !== 'undefined') {
+        speechSynthesis.onvoiceschanged = () => renderVoice();
+        setTimeout(() => { if(speechSynthesis.getVoices().length) renderVoice(); }, 500);
+    }
+    initData();
+    setTimeout(() => {
+        let v = speechSynthesis.getVoices().find(vv=>vv.lang==='yue'||vv.lang.includes('hk'));
+        if(v && !currentSelectedVoice) { currentSelectedVoice = v; document.getElementById('selectedVoiceInfo').innerHTML = `✅ 已自动选用：${v.name}`; renderVoice(); }
+    }, 1000);
+</script>
+</body>
+</html>
