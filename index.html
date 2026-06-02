@@ -3,100 +3,45 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>粤语朗读考试助手</title>
+    <title>粤语朗读考试助手 · 本地TTS版</title>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-        body {
-            background: #f1f8e9;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-            padding: 12px;
-            color: #2c3e2f;
-            margin: 0;
-            padding-bottom: 30px;
-        }
+        body { background: #f1f8e9; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; padding: 12px; color: #2c3e2f; margin: 0; padding-bottom: 30px; }
         .container { max-width: 600px; margin: 0 auto; }
         .header { text-align: center; margin-bottom: 16px; }
         .header h1 { font-size: 1.5rem; background: linear-gradient(135deg, #2e7d32, #1b5e20); -webkit-background-clip: text; background-clip: text; color: transparent; }
-        .tabs {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 4px;
-            margin-bottom: 16px;
-            background: #fff;
-            border-radius: 50px;
-            padding: 4px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-        }
-        .tab-btn {
-            flex: 1;
-            background: transparent;
-            border: none;
-            padding: 10px 0;
-            font-size: 0.8rem;
-            font-weight: 600;
-            border-radius: 40px;
-            cursor: pointer;
-            color: #2e5c2a;
-            text-align: center;
-        }
+        .tabs { display: flex; flex-wrap: wrap; gap: 4px; margin-bottom: 16px; background: #fff; border-radius: 50px; padding: 4px; }
+        .tab-btn { flex: 1; background: transparent; border: none; padding: 10px 0; font-size: 0.7rem; font-weight: 600; border-radius: 40px; cursor: pointer; color: #2e5c2a; text-align: center; }
         .tab-btn.active { background: #2e7d32; color: white; }
-        .tab-pane {
-            display: none;
-            background: white;
-            border-radius: 24px;
-            padding: 16px;
-            margin-bottom: 16px;
-        }
+        .tab-pane { display: none; background: white; border-radius: 24px; padding: 16px; margin-bottom: 16px; }
         .tab-pane.active { display: block; animation: fade 0.2s ease; }
         @keyframes fade { from { opacity: 0; } to { opacity: 1; } }
         .card { background: #fff; border-radius: 20px; padding: 14px; margin-bottom: 16px; border: 1px solid #e8f5e9; }
-        .card-title { font-weight: 700; font-size: 1rem; color: #1b5e20; border-left: 4px solid #66bb6a; padding-left: 10px; margin-bottom: 12px; }
+        .card-title { font-weight: 700; font-size: 1rem; color: #1b5e20; border-left: 4px solid #66bb6a; padding-left: 10px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; }
         button { background: #4caf50; color: white; border: none; border-radius: 40px; padding: 10px 16px; font-weight: 600; cursor: pointer; font-size: 0.85rem; }
         button:active { opacity: 0.7; }
         button.secondary { background: #ffb74d; }
         button.outline { background: transparent; border: 1.5px solid #4caf50; color: #2e7d32; }
-        button.danger { background: #ef5350; }
         button.danger-outline { background: transparent; border: 1.5px solid #ef5350; color: #c62828; }
-        input, textarea { width: 100%; padding: 12px; border-radius: 28px; border: 1px solid #c8e6c9; background: #fef9e6; font-size: 0.9rem; margin: 8px 0; font-family: monospace; }
+        input, textarea, select { width: 100%; padding: 12px; border-radius: 28px; border: 1px solid #c8e6c9; background: #fef9e6; font-size: 0.9rem; margin: 8px 0; }
         .word-list { max-height: 450px; overflow-y: auto; background: #f9fbe7; border-radius: 16px; padding: 8px; }
-        .word-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background: white;
-            margin: 6px 0;
-            padding: 8px 12px;
-            border-radius: 40px;
-            border: 1px solid #dcedc8;
-            flex-wrap: wrap;
-            gap: 6px;
-        }
+        .word-item { display: flex; justify-content: space-between; align-items: center; background: white; margin: 6px 0; padding: 8px 12px; border-radius: 40px; border: 1px solid #dcedc8; flex-wrap: wrap; gap: 6px; }
         .word-text { font-weight: 700; font-size: 1rem; min-width: 80px; }
         .jyutping-badge { background: #e1f5e8; padding: 3px 10px; border-radius: 30px; font-family: monospace; font-size: 0.7rem; }
-        .progress-info { font-size: 0.75rem; background: #f1f8e9; padding: 10px; border-radius: 20px; }
+        .progress-info { font-size: 0.75rem; background: #f1f8e9; padding: 10px; border-radius: 20px; margin-top: 8px; }
+        .progress-bar { background: #e0e0e0; border-radius: 20px; height: 8px; margin: 8px 0; overflow: hidden; }
+        .progress-fill { background: #4caf50; height: 100%; width: 0%; transition: width 0.3s; }
         .quiz-area { background: #fff8e7; padding: 16px; border-radius: 24px; text-align: center; }
-        .quiz-word { font-size: 2rem; font-weight: 800; background: #c8e6c9; display: inline-block; padding: 12px 24px; border-radius: 50px; margin: 10px 0; letter-spacing: 2px; }
+        .quiz-word { font-size: 2rem; font-weight: 800; background: #c8e6c9; display: inline-block; padding: 12px 24px; border-radius: 50px; margin: 10px 0; }
         .options { display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; margin: 20px 0; }
-        .option-btn {
-            background: #e0e0e0;
-            color: #1a1a1a;
-            padding: 12px 18px;
-            border-radius: 50px;
-            font-family: monospace;
-            font-size: 0.9rem;
-            font-weight: bold;
-            cursor: pointer;
-            border: 2px solid #a5d6a7;
-            transition: all 0.1s;
-            min-width: 100px;
-        }
-        .option-btn.selected-correct { background: #4caf50; color: white; border-color: #2e7d32; }
-        .option-btn.selected-wrong { background: #ef5350; color: white; text-decoration: line-through; border-color: #c62828; }
+        .option-btn { background: #e0e0e0; color: #1a1a1a; padding: 12px 18px; border-radius: 50px; font-family: monospace; font-size: 0.9rem; font-weight: bold; cursor: pointer; border: 2px solid #a5d6a7; min-width: 100px; }
+        .option-btn.selected-correct { background: #4caf50; color: white; }
+        .option-btn.selected-wrong { background: #ef5350; color: white; text-decoration: line-through; }
         .row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
         .flex-between { display: flex; justify-content: space-between; align-items: center; }
-        @media (max-width: 480px) { .quiz-word { font-size: 1.5rem; } .tab-btn { font-size: 0.7rem; padding: 8px 0; } .option-btn { padding: 8px 12px; font-size: 0.75rem; min-width: 70px; } }
+        @media (max-width: 480px) { .quiz-word { font-size: 1.5rem; } .option-btn { padding: 8px 12px; font-size: 0.75rem; min-width: 70px; } .tab-btn { font-size: 0.6rem; padding: 8px 2px; } }
         footer { text-align: center; font-size: 0.6rem; color: #7b8a6f; margin: 16px 0; }
-        .tts-status { background: #e8f5e9; padding: 8px 12px; border-radius: 20px; margin-top: 10px; font-size: 0.7rem; }
+        .tts-status { background: #e8f5e9; padding: 8px 12px; border-radius: 20px; margin-top: 10px; font-size: 0.7rem; word-break: break-all; }
         .loading { text-align: center; padding: 20px; color: #666; }
         .status-badge { font-size: 0.65rem; padding: 2px 8px; border-radius: 20px; }
         .status-mastered { background: #c8e6c9; color: #2e7d32; }
@@ -104,70 +49,98 @@
         .status-learning { background: #fff3e0; color: #ef6c00; }
         .action-btn { padding: 4px 10px; font-size: 0.7rem; margin: 0 2px; }
         .task-header { background: #e8f5e9; padding: 8px 12px; border-radius: 16px; margin-bottom: 10px; font-weight: bold; }
+        .voice-item { display: flex; justify-content: space-between; align-items: center; padding: 8px; border-bottom: 1px solid #e0e0e0; flex-wrap: wrap; gap: 8px; }
+        .voice-test-btn { background: #ffb74d; padding: 4px 12px; font-size: 0.7rem; border-radius: 20px; }
+        .voice-select-btn { padding: 4px 12px; font-size: 0.7rem; border-radius: 20px; transition: all 0.2s; }
+        .voice-select-btn.selected { background: #2e7d32; color: white; }
+        .voice-select-btn.unselected { background: #9e9e9e; color: white; }
+        .count-badge { background: #ff5722; color: white; border-radius: 20px; padding: 2px 8px; font-size: 0.6rem; margin-left: 8px; }
+        .voice-name { font-size: 0.7rem; flex: 1; word-break: break-all; }
     </style>
 </head>
 <body>
 <div class="container">
-    <div class="header">
-        <h1>🗣️ 粤读考试助手</h1>
-        <p>内置考试词汇 | 智能学习计划 | 陌生词本</p>
-    </div>
+    <div class="header"><h1>🗣️ 粤读考试助手</h1><p>14079个考试词汇 | 本地TTS发音</p></div>
     <div class="tabs">
         <button class="tab-btn active" data-tab="query">🔊 朗读</button>
-        <button class="tab-btn" data-tab="library">📚 词库</button>
+        <button class="tab-btn" data-tab="settings">⚙️ 设置</button>
         <button class="tab-btn" data-tab="plan">📅 计划</button>
+        <button class="tab-btn" data-tab="task">📝 今日任务</button>
+        <button class="tab-btn" data-tab="mastered">✅ 已掌握</button>
+        <button class="tab-btn" data-tab="strange">⭐ 陌生词</button>
         <button class="tab-btn" data-tab="quiz">✍️ 练习</button>
-        <button class="tab-btn" data-tab="strange">📖 陌生词</button>
+        <button class="tab-btn" data-tab="library">📚 词库</button>
     </div>
 
+    <!-- 朗读模块 -->
     <div id="query" class="tab-pane active">
-        <div class="card">
-            <div class="card-title">🔊 粤语朗读器</div>
+        <div class="card"><div class="card-title">🔊 粤语朗读器</div>
             <input type="text" id="queryText" placeholder="输入词语" value="香港">
             <button id="speakBtn" style="width:100%">🗣️ 朗读</button>
-            <div class="tts-status" id="ttsStatus">✅ TTS已就绪</div>
+            <div class="tts-status" id="ttsStatus">✅ 请在设置中选择TTS语音</div>
         </div>
-        <div class="card">
-            <div class="card-title">📖 文章朗读</div>
+        <div class="card"><div class="card-title">📖 文章朗读</div>
             <textarea id="articleText" rows="3" placeholder="粘贴考试文章"></textarea>
             <button id="speakArticleBtn" style="width:100%">🎙️ 朗读全文</button>
         </div>
     </div>
 
-    <div id="library" class="tab-pane">
-        <div class="card">
-            <div class="flex-between">
-                <div class="card-title">📋 考试词库 (<span id="wordCount">0</span>)</div>
-                <button id="resetToExamBtn" class="outline" style="padding:6px 12px;">重置词库</button>
+    <!-- 设置模块 -->
+    <div id="settings" class="tab-pane">
+        <div class="card"><div class="card-title">🎤 本地TTS语音设置</div>
+            <div class="progress-info">🎙️ 检测到的系统语音列表（请选择粤语发音人）：</div>
+            <div id="voiceListContainer" style="max-height:300px; overflow-y:auto; margin-top:8px;"></div>
+            <div class="progress-info" style="margin-top:12px;">
+                💡 使用说明：<br>
+                1. 点击「🔊 试听」测试该语音<br>
+                2. 点击「✅ 选用」激活该语音<br>
+                3. 请选择带有「粤语」「香港」「yue」「zh-HK」标识的语音<br>
+                4. 如果列表为空，请确保手机已安装粤语语音包<br><br>
+                📱 华为手机设置：设置 → 辅助功能 → 文字转语音输出 → 下载粤语语音包
             </div>
-            <div id="wordListContainer" class="word-list"><div class="loading">⏳ 正在加载词库...</div></div>
         </div>
     </div>
 
+    <!-- 学习计划模块 -->
     <div id="plan" class="tab-pane">
-        <div class="card">
-            <div class="card-title">📅 考试倒计时</div>
+        <div class="card"><div class="card-title">📅 考试倒计时规划</div>
             <input type="date" id="examDate" value="2026-07-15">
-            <button id="setPlanBtn" style="width:100%">生成学习计划</button>
-            <div id="planDisplay" class="progress-info" style="margin-top:10px;"></div>
+            <button id="generatePlanBtn" style="width:100%">📊 生成学习计划</button>
+            <div id="planInfo" class="progress-info" style="margin-top:10px;"></div>
+            <div class="progress-bar"><div id="totalProgressFill" class="progress-fill"></div></div>
+            <div id="totalProgressText" class="progress-info">整体进度：0%</div>
         </div>
-        <div class="card">
-            <div class="card-title">📊 学习进度</div>
-            <div id="progressStats" class="progress-info"></div>
-            <button id="resetProgressBtn" class="outline" style="width:100%; margin-top:8px;">重置所有进度</button>
-        </div>
-        <div class="card">
-            <div class="card-title">📝 今日学习任务</div>
+    </div>
+
+    <!-- 今日任务模块 -->
+    <div id="task" class="tab-pane">
+        <div class="card"><div class="card-title">📝 今日学习任务 <span id="todayDate"></span></div>
+            <div id="todayTaskStats" class="progress-info"></div>
+            <div class="progress-bar"><div id="todayProgressFill" class="progress-fill"></div></div>
             <div id="todayTaskContainer" class="word-list"></div>
         </div>
     </div>
 
+    <!-- 已掌握词库模块 -->
+    <div id="mastered" class="tab-pane">
+        <div class="card"><div class="flex-between"><div class="card-title">✅ 已掌握词库 <span id="masteredCount" class="count-badge">0</span></div>
+            <button id="clearMasteredBtn" class="danger-outline" style="padding:6px 12px;">清空已掌握</button>
+        </div><div id="masteredContainer" class="word-list"></div></div>
+    </div>
+
+    <!-- 陌生词模块 -->
+    <div id="strange" class="tab-pane">
+        <div class="card"><div class="flex-between"><div class="card-title">⭐ 陌生词本 <span id="strangeCount" class="count-badge">0</span></div>
+            <button id="clearStrangeBtn" class="danger-outline" style="padding:6px 12px;">清空陌生词</button>
+        </div><div id="strangeContainer" class="word-list"></div></div>
+    </div>
+
+    <!-- 练习模块 -->
     <div id="quiz" class="tab-pane">
-        <div class="quiz-area">
-            <div>🎧 粤拼选择题</div>
+        <div class="quiz-area"><div>🎧 粤拼选择题</div>
             <div id="quizWordDisplay" class="quiz-word">----</div>
             <div id="optionsContainer" class="options"></div>
-            <div id="quizFeedback" style="font-size:0.85rem; font-weight:bold; margin:8px 0;"></div>
+            <div id="quizFeedback" style="font-size:0.85rem; font-weight:bold;"></div>
             <div class="row" style="justify-content:center; gap:10px;">
                 <button id="playSoundQuizBtn">🔊 听发音</button>
                 <button id="nextQuizBtn" class="secondary">⏩ 下一题</button>
@@ -175,26 +148,40 @@
         </div>
     </div>
 
-    <div id="strange" class="tab-pane">
-        <div class="card">
-            <div class="flex-between">
-                <div class="card-title">📖 陌生词本 (<span id="strangeCount">0</span>)</div>
-                <button id="clearAllStrangeBtn" class="danger-outline" style="padding:6px 12px;">清空陌生词</button>
-            </div>
-            <div id="strangeWordContainer" class="word-list"></div>
-        </div>
+    <!-- 词库模块 -->
+    <div id="library" class="tab-pane">
+        <div class="card"><div class="flex-between"><div class="card-title">📋 全部词库 (<span id="wordCount">0</span>)</div>
+            <button id="resetAllBtn" class="danger-outline" style="padding:6px 12px;">重置全部</button>
+        </div><div id="wordListContainer" class="word-list"><div class="loading">⏳ 正在加载词库...</div></div></div>
     </div>
-    <footer>📦 数据存储于本机 | 标记陌生词后可集中复习</footer>
+    <footer>📦 数据本地存储 | 支持14079个词汇 | 智能学习规划</footer>
 </div>
 
 <script>
-    // ==================== TTS 发音函数 ====================
+    // ==================== 内置词库（实际由words_data.js提供）====================
+    let BUILTIN_WORDS = [];
+    let words = [];
+    let nextId = 1;
+    let strangeIds = [];
+    let learnedIds = [];
+    let learningPlan = [];
+    let currentSelectedVoice = null;
     let currentUtterance = null;
+    let quizLock = false;
+    let currentQuizWord = null;
+    let currentOptions = [];
     
-    function speakWithSystem(text) {
+    const STORAGE_WORDS = 'canto_words';
+    const STORAGE_STRANGE = 'canto_strange';
+    const STORAGE_LEARNED = 'canto_learned';
+    const STORAGE_PLAN = 'canto_plan';
+    const STORAGE_SELECTED_VOICE = 'canto_selected_voice';
+
+    // ==================== 本地TTS发音函数 ====================
+    function speakWithLocalTTS(text) {
         return new Promise((resolve, reject) => {
             if (!window.speechSynthesis) {
-                reject(new Error('当前环境不支持语音合成'));
+                reject(new Error('当前浏览器不支持语音合成'));
                 return;
             }
             const utterance = new SpeechSynthesisUtterance(text);
@@ -202,14 +189,24 @@
             utterance.rate = 0.85;
             utterance.pitch = 1.0;
             utterance.volume = 1.0;
-            try {
-                const voices = window.speechSynthesis.getVoices();
-                let cantoneseVoice = voices.find(v => v.lang === 'yue' || v.lang === 'zh-HK');
-                if (cantoneseVoice) utterance.voice = cantoneseVoice;
-            } catch(e) {}
-            utterance.onend = () => { currentUtterance = null; resolve(true); };
-            utterance.onerror = () => { currentUtterance = null; reject(new Error('语音播放失败')); };
-            if (currentUtterance) window.speechSynthesis.cancel();
+            
+            if (currentSelectedVoice) {
+                utterance.voice = currentSelectedVoice;
+            }
+            
+            utterance.onend = () => {
+                currentUtterance = null;
+                resolve(true);
+            };
+            utterance.onerror = (event) => {
+                console.error('TTS错误:', event);
+                currentUtterance = null;
+                reject(new Error('语音播放失败'));
+            };
+            
+            if (currentUtterance) {
+                window.speechSynthesis.cancel();
+            }
             currentUtterance = utterance;
             window.speechSynthesis.speak(utterance);
         });
@@ -217,262 +214,391 @@
     
     async function speakCantonese(text) {
         if (!text || !text.trim()) return false;
+        const statusDiv = document.getElementById('ttsStatus');
+        if (statusDiv) statusDiv.innerHTML = '<span>⏳ 正在朗读...</span>';
+        
         try {
-            await speakWithSystem(text);
+            await speakWithLocalTTS(text);
+            if (statusDiv) {
+                if (currentSelectedVoice) {
+                    statusDiv.innerHTML = `<span>✅ 朗读完成（${currentSelectedVoice.name}）</span>`;
+                } else {
+                    statusDiv.innerHTML = '<span>✅ 朗读完成</span>';
+                }
+            }
+            setTimeout(() => {
+                if (statusDiv && currentSelectedVoice) {
+                    statusDiv.innerHTML = `<span>✅ 当前语音：${currentSelectedVoice.name}</span>`;
+                } else if (statusDiv) {
+                    statusDiv.innerHTML = '<span>⚠️ 请先在设置中选择一个语音</span>';
+                }
+            }, 1500);
             return true;
         } catch(e) {
-            alert('发音失败，请确保手机已安装粤语语音包');
+            console.error('TTS失败:', e);
+            if (statusDiv) {
+                statusDiv.innerHTML = '<span>⚠️ 发音失败！请检查：<br>1. 是否在设置中选用了语音<br>2. 手机是否安装了粤语语音包</span>';
+            }
+            alert('发音失败！\n\n请确保：\n1. 已在「设置」中选用一个语音\n2. 手机已安装粤语语音包\n\n设置路径：手机设置 → 辅助功能 → 文字转语音输出 → 下载粤语语音');
             return false;
         }
     }
     
     function speakWithSelectedVoice(text) { speakCantonese(text); }
-
-    // ==================== 数据管理 ====================
-    let words = [];
-    let nextId = 1;
-    let strangeWordIds = [];  // 存储陌生词的ID
-    const STORAGE_KEY = 'canto_trainer';
-    const STRANGE_KEY = 'canto_strange';
-    let quizLock = false;
-    let currentQuizWord = null;
-    let currentOptions = [];
-    let currentPlan = { total: 0, perDay: 0, startIndex: 0 };
-
-    function save() { localStorage.setItem(STORAGE_KEY, JSON.stringify({words, nextId})); }
-    function saveStrange() { localStorage.setItem(STRANGE_KEY, JSON.stringify(strangeWordIds)); }
     
-    function loadStrange() {
-        const stored = localStorage.getItem(STRANGE_KEY);
-        if (stored) {
-            try {
-                strangeWordIds = JSON.parse(stored);
-            } catch(e) { strangeWordIds = []; }
-        } else {
-            strangeWordIds = [];
-        }
+    // ==================== 本地语音管理 ====================
+    function getLocalVoices() {
+        if (!window.speechSynthesis) return [];
+        return speechSynthesis.getVoices();
     }
     
-    function toggleStrange(wordId) {
-        const index = strangeWordIds.indexOf(wordId);
-        if (index === -1) {
-            strangeWordIds.push(wordId);
-        } else {
-            strangeWordIds.splice(index, 1);
-        }
-        saveStrange();
-        if (document.getElementById('strangeWordContainer')) renderStrangeWords();
-        if (document.getElementById('todayTaskContainer')) renderTodayTask();
-        renderWordList();
-    }
-    
-    function isStrange(wordId) { return strangeWordIds.includes(wordId); }
-    
-    function escapeHtml(s) { return s.replace(/[&<>]/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[m])); }
-
-    function renderWordList() {
-        const c = document.getElementById('wordListContainer');
-        if(!c) return;
-        document.getElementById('wordCount').innerText = words.length;
-        const displayWords = words.slice(0, 150);
-        c.innerHTML = displayWords.map(w => {
-            let statusClass = '', statusText = '';
-            if (w.mastered) { statusClass = 'status-mastered'; statusText = '✓已掌握'; }
-            else if (isStrange(w.id)) { statusClass = 'status-strange'; statusText = '⭐陌生词'; }
-            else { statusClass = 'status-learning'; statusText = '📖学习中'; }
-            return `
-            <div class="word-item">
-                <div class="word-text">${escapeHtml(w.word)}</div>
-                <div class="jyutping-badge">${escapeHtml(w.jyutping)}</div>
-                <div><span class="status-badge ${statusClass}">${statusText}</span></div>
-                <div>
-                    <button class="speak-word action-btn" data-word="${escapeHtml(w.word)}">🔊</button>
-                    ${!w.mastered ? `<button class="mark-mastered action-btn" data-id="${w.id}">✓掌握</button>` : ''}
-                    <button class="mark-strange action-btn" data-id="${w.id}" style="background:#ffcdd2;color:#c62828;">⭐陌生</button>
-                </div>
-            </div>`;
-        }).join('');
-        if(words.length > 150) c.innerHTML += '<div style="text-align:center;padding:8px;">... 共' + words.length + '个词条</div>';
+    function renderVoiceList() {
+        const container = document.getElementById('voiceListContainer');
+        if (!container) return;
         
-        document.querySelectorAll('.speak-word').forEach(btn => btn.addEventListener('click', () => speakWithSelectedVoice(btn.dataset.word)));
-        document.querySelectorAll('.mark-mastered').forEach(btn => {
-            btn.addEventListener('click', () => {
-                const id = parseInt(btn.dataset.id);
-                const word = words.find(w => w.id === id);
-                if (word && !word.mastered) {
-                    word.mastered = true;
-                    save();
-                    renderWordList();
-                    updateStats();
-                    renderTodayTask();
-                    if (document.getElementById('strangeWordContainer')) renderStrangeWords();
-                }
-            });
-        });
-        document.querySelectorAll('.mark-strange').forEach(btn => {
-            btn.addEventListener('click', () => {
-                const id = parseInt(btn.dataset.id);
-                toggleStrange(id);
-                renderWordList();
-                updateStats();
-                renderTodayTask();
-                if (document.getElementById('strangeWordContainer')) renderStrangeWords();
-            });
-        });
-    }
-    
-    function renderStrangeWords() {
-        const c = document.getElementById('strangeWordContainer');
-        if(!c) return;
-        const strangeWords = words.filter(w => isStrange(w.id));
-        document.getElementById('strangeCount').innerText = strangeWords.length;
-        if (strangeWords.length === 0) {
-            c.innerHTML = '<div class="loading">🎉 暂无陌生词，继续加油！</div>';
+        let voices = getLocalVoices();
+        if (voices.length === 0) {
+            container.innerHTML = '<div class="progress-info">⏳ 正在加载语音列表，请稍后...</div>';
+            setTimeout(() => {
+                voices = getLocalVoices();
+                if (voices.length > 0) renderVoiceList();
+                else container.innerHTML = '<div class="progress-info">⚠️ 未检测到语音，请检查手机TTS设置</div>';
+            }, 500);
             return;
         }
-        c.innerHTML = strangeWords.map(w => `
-            <div class="word-item">
-                <div class="word-text">${escapeHtml(w.word)}</div>
-                <div class="jyutping-badge">${escapeHtml(w.jyutping)}</div>
+        
+        // 优先显示粤语相关语音
+        const cantoneseVoices = voices.filter(v => 
+            v.lang === 'yue' || 
+            v.lang === 'zh-HK' || 
+            v.name.toLowerCase().includes('cantonese') ||
+            v.name.toLowerCase().includes('hong kong')
+        );
+        const otherVoices = voices.filter(v => !cantoneseVoices.includes(v) && v.lang.startsWith('zh'));
+        const sorted = [...cantoneseVoices, ...otherVoices];
+        
+        const savedVoiceName = localStorage.getItem(STORAGE_SELECTED_VOICE);
+        if (savedVoiceName && !currentSelectedVoice) {
+            currentSelectedVoice = voices.find(v => v.name === savedVoiceName);
+        }
+        
+        container.innerHTML = sorted.map(v => {
+            const isSelected = currentSelectedVoice && currentSelectedVoice.name === v.name;
+            let tag = '';
+            if (v.lang === 'yue' || v.lang === 'zh-HK') tag = ' 🎯 粤语推荐';
+            else if (v.name.toLowerCase().includes('cantonese')) tag = ' 🎯 粤语推荐';
+            return `
+            <div class="voice-item">
+                <span class="voice-name">${v.name} (${v.lang})${tag}</span>
                 <div>
-                    <button class="speak-strange action-btn" data-word="${escapeHtml(w.word)}">🔊</button>
-                    <button class="master-from-strange action-btn" data-id="${w.id}" style="background:#c8e6c9;">✓掌握</button>
-                    <button class="remove-strange action-btn" data-id="${w.id}" style="background:#ffcdd2;">移出</button>
+                    <button class="voice-test-btn" data-name="${v.name}">🔊 试听</button>
+                    <button class="voice-select-btn ${isSelected ? 'selected' : 'unselected'}" data-name="${v.name}">${isSelected ? '✅ 已选用' : '⬜ 选用'}</button>
                 </div>
             </div>
-        `).join('');
-        document.querySelectorAll('.speak-strange').forEach(btn => btn.addEventListener('click', () => speakWithSelectedVoice(btn.dataset.word)));
-        document.querySelectorAll('.master-from-strange').forEach(btn => {
+        `}).join('');
+        
+        // 绑定试听事件
+        document.querySelectorAll('.voice-test-btn').forEach(btn => {
             btn.addEventListener('click', () => {
-                const id = parseInt(btn.dataset.id);
-                const word = words.find(w => w.id === id);
-                if (word && !word.mastered) {
-                    word.mastered = true;
-                    save();
+                const voice = voices.find(v => v.name === btn.dataset.name);
+                if (voice) {
+                    const testMsg = new SpeechSynthesisUtterance('你好，香港');
+                    testMsg.voice = voice;
+                    testMsg.rate = 0.85;
+                    window.speechSynthesis.cancel();
+                    window.speechSynthesis.speak(testMsg);
                 }
-                const idx = strangeWordIds.indexOf(id);
-                if (idx !== -1) strangeWordIds.splice(idx, 1);
-                saveStrange();
-                renderStrangeWords();
-                renderWordList();
-                updateStats();
-                renderTodayTask();
             });
         });
-        document.querySelectorAll('.remove-strange').forEach(btn => {
+        
+        // 绑定选用事件
+        document.querySelectorAll('.voice-select-btn').forEach(btn => {
             btn.addEventListener('click', () => {
-                const id = parseInt(btn.dataset.id);
-                const idx = strangeWordIds.indexOf(id);
-                if (idx !== -1) strangeWordIds.splice(idx, 1);
-                saveStrange();
-                renderStrangeWords();
-                renderWordList();
-                renderTodayTask();
+                const voice = voices.find(v => v.name === btn.dataset.name);
+                if (voice) {
+                    if (currentSelectedVoice && currentSelectedVoice.name === voice.name) {
+                        currentSelectedVoice = null;
+                        localStorage.removeItem(STORAGE_SELECTED_VOICE);
+                    } else {
+                        currentSelectedVoice = voice;
+                        localStorage.setItem(STORAGE_SELECTED_VOICE, voice.name);
+                    }
+                    renderVoiceList();
+                    const statusDiv = document.getElementById('ttsStatus');
+                    if (statusDiv) {
+                        if (currentSelectedVoice) {
+                            statusDiv.innerHTML = `<span>✅ 已选用语音：${currentSelectedVoice.name}</span>`;
+                        } else {
+                            statusDiv.innerHTML = '<span>⚠️ 未选用任何语音，请选择一个粤语发音人</span>';
+                        }
+                    }
+                }
             });
         });
+        
+        if (currentSelectedVoice) {
+            const statusDiv = document.getElementById('ttsStatus');
+            if (statusDiv) statusDiv.innerHTML = `<span>✅ 当前语音：${currentSelectedVoice.name}</span>`;
+        }
     }
     
-    document.getElementById('clearAllStrangeBtn')?.addEventListener('click', () => {
-        if (confirm('清空所有陌生词？')) {
-            strangeWordIds = [];
-            saveStrange();
-            renderStrangeWords();
-            renderWordList();
-            renderTodayTask();
-        }
-    });
+    // ==================== 数据管理 ====================
+    function saveAll() {
+        localStorage.setItem(STORAGE_WORDS, JSON.stringify(words));
+        localStorage.setItem(STORAGE_STRANGE, JSON.stringify(strangeIds));
+        localStorage.setItem(STORAGE_LEARNED, JSON.stringify(learnedIds));
+    }
     
-    function updateStats() {
-        let total = words.length, mastered = words.filter(w=>w.mastered).length;
-        let strange = strangeWordIds.length;
-        document.getElementById('progressStats').innerHTML = `总词条 ${total} | ✅已掌握 ${mastered} | ⭐陌生词 ${strange} | 📖学习中 ${total-mastered-strange}`;
-        let exam = document.getElementById('examDate').value;
-        if(exam && total) {
-            let today = new Date(); today.setHours(0,0,0,0);
-            let examDate = new Date(exam);
-            let diff = Math.ceil((examDate - today) / 86400000);
-            let needToLearn = total - mastered;
-            let perDay = diff > 0 ? Math.ceil(needToLearn / diff) : needToLearn;
-            currentPlan = { total, perDay, startIndex: 0 };
-            if(diff > 0) document.getElementById('planDisplay').innerHTML = `距离考试还有 ${diff} 天<br>🎯 建议每天学习 ${perDay} 个新词<br>📊 当前未掌握: ${needToLearn} 个 (含陌生词 ${strange} 个)`;
-            else document.getElementById('planDisplay').innerHTML = `⚠️ 考试日期已过！剩余 ${needToLearn} 个词条需要掌握`;
+    function loadAll() {
+        const storedWords = localStorage.getItem(STORAGE_WORDS);
+        if (storedWords && storedWords !== '[]') {
+            words = JSON.parse(storedWords);
+            nextId = words.length + 1;
+        } else if (BUILTIN_WORDS && BUILTIN_WORDS.length > 0) {
+            words = BUILTIN_WORDS.map((w, i) => ({id: i+1, word: w[0], jyutping: w[1], mastered: false, reviewCount: 0}));
+            nextId = words.length + 1;
+            saveAll();
+            console.log(`✅ 从内置词库加载了 ${words.length} 个词汇`);
+        } else {
+            console.log('等待词库加载...');
         }
+        
+        const storedStrange = localStorage.getItem(STORAGE_STRANGE);
+        strangeIds = storedStrange ? JSON.parse(storedStrange) : [];
+        const storedLearned = localStorage.getItem(STORAGE_LEARNED);
+        learnedIds = storedLearned ? JSON.parse(storedLearned) : [];
+        
+        if (words.length > 0) {
+            words.forEach(w => {
+                if (learnedIds.includes(w.id)) w.mastered = true;
+                else w.mastered = false;
+                if (w.reviewCount === undefined) w.reviewCount = 0;
+            });
+        }
+        
+        const savedVoiceName = localStorage.getItem(STORAGE_SELECTED_VOICE);
+        if (savedVoiceName) {
+            const voices = getLocalVoices();
+            currentSelectedVoice = voices.find(v => v.name === savedVoiceName);
+        }
+    }
+    
+    function markAsMastered(wordId) {
+        const word = words.find(w => w.id === wordId);
+        if (!word) return;
+        if (!learnedIds.includes(wordId)) {
+            learnedIds.push(wordId);
+            word.reviewCount = (word.reviewCount || 0) + 1;
+        }
+        const strangeIdx = strangeIds.indexOf(wordId);
+        if (strangeIdx !== -1) strangeIds.splice(strangeIdx, 1);
+        word.mastered = true;
+        saveAll();
+        refreshAllDisplays();
+    }
+    
+    function markAsStrange(wordId) {
+        const word = words.find(w => w.id === wordId);
+        if (!word) return;
+        if (!strangeIds.includes(wordId)) strangeIds.push(wordId);
+        const learnedIdx = learnedIds.indexOf(wordId);
+        if (learnedIdx !== -1) learnedIds.splice(learnedIdx, 1);
+        word.mastered = false;
+        saveAll();
+        refreshAllDisplays();
+    }
+    
+    function removeFromStrange(wordId) {
+        const idx = strangeIds.indexOf(wordId);
+        if (idx !== -1) strangeIds.splice(idx, 1);
+        const word = words.find(w => w.id === wordId);
+        if (word) word.mastered = false;
+        saveAll();
+        refreshAllDisplays();
+    }
+    
+    function removeFromMastered(wordId) {
+        const idx = learnedIds.indexOf(wordId);
+        if (idx !== -1) learnedIds.splice(idx, 1);
+        const word = words.find(w => w.id === wordId);
+        if (word) word.mastered = false;
+        saveAll();
+        refreshAllDisplays();
+    }
+    
+    // ==================== 学习计划 ====================
+    function generateLearningPlan() {
+        if (words.length === 0) {
+            alert('词库尚未加载完成，请稍后重试');
+            return;
+        }
+        const examDate = new Date(document.getElementById('examDate').value);
+        const today = new Date();
+        today.setHours(0,0,0,0);
+        const diffDays = Math.ceil((examDate - today) / 86400000);
+        if (diffDays <= 0) {
+            alert('考试日期必须晚于今天');
+            return;
+        }
+        const notMastered = words.filter(w => !learnedIds.includes(w.id));
+        const totalToLearn = notMastered.length;
+        const perDay = Math.ceil(totalToLearn / diffDays);
+        learningPlan = [];
+        let wordIndex = 0;
+        for (let day = 0; day < diffDays; day++) {
+            const dayWords = [];
+            for (let i = 0; i < perDay && wordIndex < notMastered.length; i++) {
+                dayWords.push(notMastered[wordIndex].id);
+                wordIndex++;
+            }
+            const planDate = new Date(today);
+            planDate.setDate(today.getDate() + day);
+            learningPlan.push({ dayIndex: day, wordIds: dayWords, date: planDate });
+        }
+        localStorage.setItem(STORAGE_PLAN, JSON.stringify(learningPlan));
+        displayPlanInfo(diffDays, totalToLearn, perDay);
+        renderTodayTask();
+    }
+    
+    function displayPlanInfo(diffDays, totalToLearn, perDay) {
+        const planInfo = document.getElementById('planInfo');
+        const learned = learnedIds.length;
+        const total = words.length;
+        const percent = total > 0 ? Math.round(learned / total * 100) : 0;
+        document.getElementById('totalProgressFill').style.width = percent + '%';
+        document.getElementById('totalProgressText').innerHTML = `整体进度：${learned}/${total} (${percent}%)`;
+        if (planInfo && total > 0) {
+            planInfo.innerHTML = `📅 距离考试还有 ${diffDays} 天<br>📚 待学习词汇：${totalToLearn} 个<br>🎯 每天建议学习：${perDay} 个<br>✅ 当前已掌握：${learned} 个`;
+        }
+    }
+    
+    function getTodayTaskWords() {
+        const today = new Date();
+        today.setHours(0,0,0,0);
+        const storedPlan = localStorage.getItem(STORAGE_PLAN);
+        if (!storedPlan) return [];
+        const plan = JSON.parse(storedPlan);
+        const todayPlan = plan.find(p => {
+            const planDate = new Date(p.date);
+            planDate.setHours(0,0,0,0);
+            return planDate.getTime() === today.getTime();
+        });
+        if (!todayPlan) return [];
+        return todayPlan.wordIds.filter(id => !learnedIds.includes(id));
     }
     
     function renderTodayTask() {
         const container = document.getElementById('todayTaskContainer');
         if (!container) return;
-        let total = words.length, mastered = words.filter(w=>w.mastered).length;
-        let notMastered = words.filter(w => !w.mastered);
-        if (notMastered.length === 0) {
-            container.innerHTML = '<div class="loading">🎉 恭喜！所有词条已掌握！</div>';
+        const taskIds = getTodayTaskWords();
+        const taskWords = taskIds.map(id => words.find(w => w.id === id)).filter(w => w);
+        const totalTask = taskIds.length;
+        const completedTask = totalTask - taskWords.length;
+        const percent = totalTask > 0 ? Math.round(completedTask / totalTask * 100) : 0;
+        document.getElementById('todayProgressFill').style.width = percent + '%';
+        document.getElementById('todayTaskStats').innerHTML = `今日任务：${completedTask}/${totalTask} 已完成 (${percent}%)`;
+        document.getElementById('todayDate').innerHTML = new Date().toLocaleDateString('zh-CN');
+        if (taskWords.length === 0) {
+            container.innerHTML = '<div class="loading">🎉 今日任务已完成！继续加油！</div>';
             return;
         }
-        let exam = document.getElementById('examDate').value;
-        let today = new Date(); today.setHours(0,0,0,0);
-        let examDate = new Date(exam);
-        let diff = Math.ceil((examDate - today) / 86400000);
-        let perDay = diff > 0 ? Math.ceil(notMastered.length / diff) : notMastered.length;
-        perDay = Math.min(perDay, 30); // 每天最多30个，避免页面过长
-        let todayWords = notMastered.slice(0, perDay);
-        
-        container.innerHTML = `<div class="task-header">📌 今日任务 (${todayWords.length} / ${notMastered.length} 个待掌握词)</div>`;
-        container.innerHTML += todayWords.map(w => {
-            let isStrangeFlag = isStrange(w.id);
-            return `
+        container.innerHTML = taskWords.map(w => `
             <div class="word-item">
                 <div class="word-text">${escapeHtml(w.word)}</div>
                 <div class="jyutping-badge">${escapeHtml(w.jyutping)}</div>
-                <div><span class="status-badge ${isStrangeFlag ? 'status-strange' : 'status-learning'}">${isStrangeFlag ? '⭐陌生词' : '📖学习中'}</span></div>
                 <div>
                     <button class="task-speak action-btn" data-word="${escapeHtml(w.word)}">🔊</button>
                     <button class="task-master action-btn" data-id="${w.id}" style="background:#c8e6c9;">✓掌握</button>
                     <button class="task-strange action-btn" data-id="${w.id}" style="background:#ffcdd2;">⭐陌生</button>
                 </div>
-            </div>`;
-        }).join('');
-        
-        document.querySelectorAll('.task-speak').forEach(btn => btn.addEventListener('click', () => speakWithSelectedVoice(btn.dataset.word)));
-        document.querySelectorAll('.task-master').forEach(btn => {
-            btn.addEventListener('click', () => {
-                const id = parseInt(btn.dataset.id);
-                const word = words.find(w => w.id === id);
-                if (word && !word.mastered) {
-                    word.mastered = true;
-                    save();
-                    updateStats();
-                    renderTodayTask();
-                    renderWordList();
-                    if (document.getElementById('strangeWordContainer')) renderStrangeWords();
-                }
-            });
-        });
-        document.querySelectorAll('.task-strange').forEach(btn => {
-            btn.addEventListener('click', () => {
-                const id = parseInt(btn.dataset.id);
-                toggleStrange(id);
-                updateStats();
-                renderTodayTask();
-                renderWordList();
-                if (document.getElementById('strangeWordContainer')) renderStrangeWords();
-            });
-        });
+            </div>
+        `).join('');
+        bindTaskEvents();
     }
     
-    document.getElementById('setPlanBtn')?.addEventListener('click', () => {
-        updateStats();
-        renderTodayTask();
-    });
+    function bindTaskEvents() {
+        document.querySelectorAll('.task-speak').forEach(btn => btn.addEventListener('click', () => speakWithSelectedVoice(btn.dataset.word)));
+        document.querySelectorAll('.task-master').forEach(btn => btn.addEventListener('click', () => markAsMastered(parseInt(btn.dataset.id))));
+        document.querySelectorAll('.task-strange').forEach(btn => btn.addEventListener('click', () => markAsStrange(parseInt(btn.dataset.id))));
+    }
+    
+    // ==================== 渲染各模块 ====================
+    function renderMastered() {
+        const container = document.getElementById('masteredContainer');
+        if (!container) return;
+        const masteredWords = words.filter(w => learnedIds.includes(w.id));
+        document.getElementById('masteredCount').innerText = masteredWords.length;
+        if (masteredWords.length === 0) { container.innerHTML = '<div class="loading">暂无已掌握词汇</div>'; return; }
+        container.innerHTML = masteredWords.map(w => `
+            <div class="word-item">
+                <div class="word-text">${escapeHtml(w.word)}</div>
+                <div class="jyutping-badge">${escapeHtml(w.jyutping)}</div>
+                <div><span style="font-size:0.7rem;">✓学习 ${w.reviewCount || 0} 次</span></div>
+                <div>
+                    <button class="mastered-speak action-btn" data-word="${escapeHtml(w.word)}">🔊</button>
+                    <button class="mastered-to-strange action-btn" data-id="${w.id}" style="background:#ffcdd2;">移入陌生</button>
+                </div>
+            </div>
+        `).join('');
+        document.querySelectorAll('.mastered-speak').forEach(btn => btn.addEventListener('click', () => speakWithSelectedVoice(btn.dataset.word)));
+        document.querySelectorAll('.mastered-to-strange').forEach(btn => btn.addEventListener('click', () => { removeFromMastered(parseInt(btn.dataset.id)); markAsStrange(parseInt(btn.dataset.id)); }));
+    }
+    
+    function renderStrange() {
+        const container = document.getElementById('strangeContainer');
+        if (!container) return;
+        const strangeWords = words.filter(w => strangeIds.includes(w.id));
+        document.getElementById('strangeCount').innerText = strangeWords.length;
+        if (strangeWords.length === 0) { container.innerHTML = '<div class="loading">暂无陌生词</div>'; return; }
+        container.innerHTML = strangeWords.map(w => `
+            <div class="word-item">
+                <div class="word-text">${escapeHtml(w.word)}</div>
+                <div class="jyutping-badge">${escapeHtml(w.jyutping)}</div>
+                <div>
+                    <button class="strange-speak action-btn" data-word="${escapeHtml(w.word)}">🔊</button>
+                    <button class="strange-master action-btn" data-id="${w.id}" style="background:#c8e6c9;">✓掌握</button>
+                    <button class="strange-remove action-btn" data-id="${w.id}" style="background:#ffcdd2;">移出</button>
+                </div>
+            </div>
+        `).join('');
+        document.querySelectorAll('.strange-speak').forEach(btn => btn.addEventListener('click', () => speakWithSelectedVoice(btn.dataset.word)));
+        document.querySelectorAll('.strange-master').forEach(btn => btn.addEventListener('click', () => { removeFromStrange(parseInt(btn.dataset.id)); markAsMastered(parseInt(btn.dataset.id)); }));
+        document.querySelectorAll('.strange-remove').forEach(btn => btn.addEventListener('click', () => removeFromStrange(parseInt(btn.dataset.id))));
+    }
+    
+    function renderWordList() {
+        const container = document.getElementById('wordListContainer');
+        if (!container) return;
+        if (words.length === 0) {
+            container.innerHTML = '<div class="loading">⏳ 正在加载词库...</div>';
+            return;
+        }
+        document.getElementById('wordCount').innerText = words.length;
+        const displayWords = words.slice(0, 150);
+        container.innerHTML = displayWords.map(w => {
+            let status = '';
+            if (learnedIds.includes(w.id)) status = '✓已掌握';
+            else if (strangeIds.includes(w.id)) status = '⭐陌生词';
+            else status = '📖学习中';
+            return `<div class="word-item"><div class="word-text">${escapeHtml(w.word)}</div><div class="jyutping-badge">${escapeHtml(w.jyutping)}</div><div><span class="status-badge">${status}</span></div><div><button class="lib-speak action-btn" data-word="${escapeHtml(w.word)}">🔊</button></div></div>`;
+        }).join('');
+        document.querySelectorAll('.lib-speak').forEach(btn => btn.addEventListener('click', () => speakWithSelectedVoice(btn.dataset.word)));
+        if (words.length > 150) container.innerHTML += '<div style="text-align:center;padding:8px;">... 共' + words.length + '个词条</div>';
+    }
     
     function refreshQuiz() {
-        if(!words.length) return;
-        let pool = words.filter(w => !w.mastered);
-        if(pool.length === 0) pool = words;
-        currentQuizWord = pool[Math.floor(Math.random()*pool.length)];
+        if (!words.length) {
+            document.getElementById('quizWordDisplay').innerHTML = '加载中...';
+            return;
+        }
+        let pool = words.filter(w => !learnedIds.includes(w.id));
+        if (pool.length === 0) pool = words;
+        if (pool.length === 0) return;
+        currentQuizWord = pool[Math.floor(Math.random() * pool.length)];
         let opts = [currentQuizWord.jyutping];
-        let others = [...new Set(words.filter(w=>w.id!==currentQuizWord.id).map(w=>w.jyutping))];
-        while(opts.length<4 && others.length) { let r = others.shift(); if(!opts.includes(r)) opts.push(r); }
-        for(let i=opts.length-1;i>0;i--) { let j=Math.floor(Math.random()*(i+1)); [opts[i],opts[j]]=[opts[j],opts[i]]; }
+        let others = [...new Set(words.filter(w => w.id !== currentQuizWord.id).map(w => w.jyutping))];
+        while (opts.length < 4 && others.length) { let r = others.shift(); if (!opts.includes(r)) opts.push(r); }
+        for (let i = opts.length - 1; i > 0; i--) { let j = Math.floor(Math.random() * (i + 1)); [opts[i], opts[j]] = [opts[j], opts[i]]; }
         currentOptions = opts;
         document.getElementById('quizWordDisplay').innerHTML = escapeHtml(currentQuizWord.word);
         let div = document.getElementById('optionsContainer');
@@ -482,21 +608,13 @@
             btn.className = 'option-btn';
             btn.innerText = opt;
             btn.onclick = () => {
-                if(quizLock) return;
-                if(opt === currentQuizWord.jyutping) {
-                    if(!currentQuizWord.mastered) { 
-                        currentQuizWord.mastered = true; 
-                        save(); 
-                        updateStats(); 
-                        renderTodayTask();
-                        renderWordList();
-                        if (document.getElementById('strangeWordContainer')) renderStrangeWords();
-                    }
-                    document.getElementById('quizFeedback').innerHTML = '✅ 正确！继续加油！';
+                if (quizLock) return;
+                if (opt === currentQuizWord.jyutping) {
+                    document.getElementById('quizFeedback').innerHTML = '✅ 正确！';
                     quizLock = true;
                     btn.classList.add('selected-correct');
                 } else {
-                    document.getElementById('quizFeedback').innerHTML = `❌ 错误！正确答案：${currentQuizWord.jyutping}<br>⭐可标记为陌生词重点复习`;
+                    document.getElementById('quizFeedback').innerHTML = `❌ 错误！正确答案：${currentQuizWord.jyutping}`;
                     quizLock = true;
                     btn.classList.add('selected-wrong');
                 }
@@ -506,99 +624,81 @@
         quizLock = false;
     }
     
-    function refreshToday() { renderTodayTask(); }
-
-    // 初始化词库
-    function initData() {
-        const stored = localStorage.getItem(STORAGE_KEY);
-        if(stored && stored !== '{}') {
-            try {
-                const data = JSON.parse(stored);
-                words = data.words || [];
-                nextId = data.nextId || 1;
-                words.forEach(w => { if(w.mastered===undefined) w.mastered=false; });
-            } catch(e) { loadFromBuiltin(); }
-        } else {
-            loadFromBuiltin();
-        }
-        loadStrange();
+    function refreshAllDisplays() {
+        if (words.length === 0) return;
+        renderMastered();
+        renderStrange();
         renderWordList();
-        updateStats();
-        refreshToday();
-        refreshQuiz();
-        if (document.getElementById('strangeWordContainer')) renderStrangeWords();
+        renderTodayTask();
+        const total = words.length;
+        const learned = learnedIds.length;
+        const percent = total > 0 ? Math.round(learned / total * 100) : 0;
+        document.getElementById('totalProgressFill').style.width = percent + '%';
+        document.getElementById('totalProgressText').innerHTML = `整体进度：${learned}/${total} (${percent}%)`;
     }
     
-    function loadFromBuiltin() {
-        if(typeof BUILTIN_WORDS !== 'undefined' && BUILTIN_WORDS.length > 0) {
-            words = BUILTIN_WORDS.map((w, index) => ({
-                id: index + 1,
-                word: w[0],
-                jyutping: w[1],
-                mastered: false
-            }));
-            nextId = words.length + 1;
-            save();
-        } else {
-            document.getElementById('wordListContainer').innerHTML = '<div class="loading">❌ 词库加载失败</div>';
-        }
-    }
-
-    // 事件绑定
-    document.getElementById('resetToExamBtn')?.addEventListener('click', () => { 
-        if(confirm('重置词库？当前进度将丢失！')) { 
-            loadFromBuiltin(); 
-            strangeWordIds = [];
-            saveStrange();
-            renderWordList(); 
-            updateStats(); 
-            refreshToday(); 
-            refreshQuiz();
-            if (document.getElementById('strangeWordContainer')) renderStrangeWords();
-        } 
-    });
-    document.getElementById('resetProgressBtn')?.addEventListener('click', () => { 
-        if(confirm('重置所有学习进度？')){ 
-            words.forEach(w=>w.mastered=false); 
-            strangeWordIds = [];
-            saveStrange();
-            save(); 
-            updateStats(); 
-            refreshToday(); 
-            refreshQuiz();
-            renderWordList();
-            if (document.getElementById('strangeWordContainer')) renderStrangeWords();
-        } 
-    });
+    function escapeHtml(s) { return s.replace(/[&<>]/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[m])); }
+    
+    // ==================== 事件绑定 ====================
+    document.getElementById('generatePlanBtn')?.addEventListener('click', generateLearningPlan);
+    document.getElementById('clearMasteredBtn')?.addEventListener('click', () => { if(confirm('清空所有已掌握记录？')) { learnedIds = []; words.forEach(w => { w.mastered = false; w.reviewCount = 0; }); saveAll(); refreshAllDisplays(); } });
+    document.getElementById('clearStrangeBtn')?.addEventListener('click', () => { if(confirm('清空所有陌生词？')) { strangeIds = []; saveAll(); refreshAllDisplays(); } });
+    document.getElementById('resetAllBtn')?.addEventListener('click', () => { if(confirm('重置全部数据？所有进度将丢失！')) { learnedIds = []; strangeIds = []; words.forEach(w => { w.mastered = false; w.reviewCount = 0; }); saveAll(); refreshAllDisplays(); refreshQuiz(); } });
     document.getElementById('speakBtn')?.addEventListener('click', () => speakWithSelectedVoice(document.getElementById('queryText').value));
     document.getElementById('speakArticleBtn')?.addEventListener('click', () => { let a = document.getElementById('articleText').value; if(a) speakWithSelectedVoice(a); else alert('请输入内容'); });
     document.getElementById('playSoundQuizBtn')?.addEventListener('click', () => { if(currentQuizWord) speakWithSelectedVoice(currentQuizWord.word); });
     document.getElementById('nextQuizBtn')?.addEventListener('click', () => refreshQuiz());
-
-    // 选项卡切换
+    
     document.querySelectorAll('.tab-btn').forEach(btn => {
         btn.addEventListener('click', () => {
-            document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
-            document.querySelectorAll('.tab-pane').forEach(p=>p.classList.remove('active'));
+            document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
             document.getElementById(btn.dataset.tab).classList.add('active');
-            if(btn.dataset.tab === 'library') renderWordList();
-            if(btn.dataset.tab === 'plan') { updateStats(); refreshToday(); }
-            if(btn.dataset.tab === 'quiz') refreshQuiz();
-            if(btn.dataset.tab === 'strange') renderStrangeWords();
+            if (btn.dataset.tab === 'settings') {
+                renderVoiceList();
+            }
+            if (btn.dataset.tab === 'mastered') renderMastered();
+            if (btn.dataset.tab === 'strange') renderStrange();
+            if (btn.dataset.tab === 'library') renderWordList();
+            if (btn.dataset.tab === 'task') renderTodayTask();
+            if (btn.dataset.tab === 'plan') {
+                const total = words.length;
+                const learned = learnedIds.length;
+                const percent = total > 0 ? Math.round(learned / total * 100) : 0;
+                document.getElementById('totalProgressFill').style.width = percent + '%';
+                document.getElementById('totalProgressText').innerHTML = `整体进度：${learned}/${total} (${percent}%)`;
+            }
+            if (btn.dataset.tab === 'quiz') refreshQuiz();
         });
     });
     
+    // ==================== 初始化 ====================
+    // 预加载语音列表
     if (window.speechSynthesis) {
         window.speechSynthesis.getVoices();
         if (window.speechSynthesis.onvoiceschanged !== undefined) {
-            window.speechSynthesis.onvoiceschanged = () => {};
+            window.speechSynthesis.onvoiceschanged = () => {
+                if (document.getElementById('settings').classList.contains('active')) renderVoiceList();
+            };
         }
     }
     
+    // 等待词库加载
     function waitForWords() {
-        if(typeof BUILTIN_WORDS !== 'undefined') {
-            initData();
+        if (typeof window.BUILTIN_WORDS !== 'undefined' && window.BUILTIN_WORDS && window.BUILTIN_WORDS.length > 0) {
+            BUILTIN_WORDS = window.BUILTIN_WORDS;
+            console.log(`✅ 词库加载完成，共 ${BUILTIN_WORDS.length} 个词汇`);
+            loadAll();
+            refreshAllDisplays();
+            refreshQuiz();
+            setTimeout(() => {
+                renderVoiceList();
+                if (currentSelectedVoice) {
+                    const statusDiv = document.getElementById('ttsStatus');
+                    if (statusDiv) statusDiv.innerHTML = `<span>✅ 当前语音：${currentSelectedVoice.name}</span>`;
+                }
+            }, 500);
         } else {
             setTimeout(waitForWords, 100);
         }
